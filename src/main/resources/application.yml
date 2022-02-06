@@ -1,0 +1,19 @@
+server:
+  port: 9090
+  servlet:
+    contextPath: /batchdemo
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/testdb
+    username:
+    password:
+    hikari:
+      connectionTimeout: 20000
+      maximumPoolSize: 5
+  jpa:
+    showSql: true
+  batch:
+    initializeSchema: always
+#    job:
+#      enabled: false
