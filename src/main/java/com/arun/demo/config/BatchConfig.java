@@ -4,6 +4,7 @@ import com.arun.demo.entity.TestTable;
 import com.arun.demo.listener.IWriteListener;
 import com.arun.demo.repository.TestTableRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.SessionFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -12,7 +13,11 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
+import org.springframework.batch.item.database.HibernateCursorItemReader;
+import org.springframework.batch.item.database.HibernatePagingItemReader;
 import org.springframework.batch.item.database.JpaPagingItemReader;
+import org.springframework.batch.item.database.builder.HibernateCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.HibernatePagingItemReaderBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.batch.item.support.ListItemWriter;
 import org.springframework.context.annotation.Bean;
@@ -31,19 +36,22 @@ public class BatchConfig {
     private final TestTableRepository testTableRepository;
     private final EntityManagerFactory entityManagerFactory;
     private final IWriteListener itemWriteListener;
+    private final SessionFactory sessionFactory;
 
     @Bean
     public Step step1() {
         return stepBuilderFactory.get("step1")
                 .chunk(1000)
-                .reader(repositoryItemReader())
+//                .reader(repositoryItemReader())
+//                .reader(hibernateCursorItemReader())
+                .reader(hibernatePagingItemReader())
 //                .processor(null)
                .writer(listItemWriter())
                 .listener(itemWriteListener)
                 .build();
     }
 
-    @Bean
+    @Bean("mydemojob")
     public Job job1() {
         return jobBuilderFactory.get("job1"+System.currentTimeMillis())
                 .incrementer(new RunIdIncrementer())
@@ -72,6 +80,30 @@ public class BatchConfig {
         recordsReader.setMethodName("findAll");
         return recordsReader;
     }
+
+    @Bean
+    HibernateCursorItemReader hibernateCursorItemReader() {
+        return new HibernateCursorItemReaderBuilder<TestTable>()
+                .name("HibernateCursorReader")
+                .fetchSize(0)
+                .nativeQuery("SELECT ID,NAME FROM testtable1")
+                .entityClass(TestTable.class)
+                .sessionFactory(sessionFactory)
+                .build();
+    }
+
+    @Bean
+    HibernatePagingItemReader hibernatePagingItemReader(){
+        return new HibernatePagingItemReaderBuilder<TestTable>()
+                .fetchSize(0)
+                .pageSize(100)
+                .name("HibernatePagingItemReader")
+                .queryString("FROM TestTable")
+                .sessionFactory(sessionFactory)
+                .build();
+    }
+
+
 
     @Bean
     public ItemWriter listItemWriter(){
