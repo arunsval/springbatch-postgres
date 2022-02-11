@@ -1,27 +1,41 @@
 package com.arun.demo;
 
-import com.arun.demo.repository.TestTableRepository;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Slf4j
 @SpringBootApplication
 @RequiredArgsConstructor
 public class SpringBatchPostgresApplication {
-//    private final TestTableRepository testTableRepository;
+
 
     public static void main(String[] args) {
         SpringApplication.run(SpringBatchPostgresApplication.class, args);
     }
 
-   /* @EventListener(ApplicationReadyEvent.class)
+
+
+
+    @EventListener(ApplicationReadyEvent.class)
     public void checkDB(){
-        log.info("Found rows: {}", testTableRepository.findAll().stream().count());
-    }*/
+        RedisURI redisURI = RedisURI.builder()
+                .withHost("localhost")
+                .withPort(6379)
+                .withDatabase(0)
+                .build();
+        RedisClient redisClient = RedisClient.create(redisURI);
+        StatefulRedisConnection statefulRedisConnection = redisClient.connect();
+        RedisAsyncCommands<String,String> asyncCommands =statefulRedisConnection.async();
+        asyncCommands.set("hhh","yyyyy");
+        statefulRedisConnection.close();
+        redisClient.shutdown();
+    }
 }
