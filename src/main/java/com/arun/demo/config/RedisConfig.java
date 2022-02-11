@@ -16,10 +16,15 @@ public class RedisConfig {
         return redisClient.connect();
     }
 
-    @Bean
-    public RedisClient redisClient(){
-        RedisURI redisURI = RedisURI.builder().withHost("127.0.0.1").withPort(6379).build();
-        return RedisClient.create(redisURI);
+    @Bean(destroyMethod = "shutdown")
+    public RedisClient demoRedisClient(){
+        RedisURI redisURI = RedisURI.builder()
+                .withHost("localhost")
+                .withPort(6379)
+                .withDatabase(0)
+                .build();
+        RedisClient redisClient = RedisClient.create(redisURI);
+        return redisClient;
     }
 
     @Bean

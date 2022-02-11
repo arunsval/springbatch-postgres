@@ -21,7 +21,7 @@ public class BatchScheduler {
     private final JobLauncher jobLauncher;
     private final Job mydemoJob;
 
-    @Scheduled(fixedDelay = 5 * 60 * 1000L) //5mins
+    @Scheduled(fixedDelay = 20000) //5mins
     public void runBatch() throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
         jobLauncher.run(mydemoJob,
                 new JobParametersBuilder()

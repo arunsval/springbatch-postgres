@@ -41,7 +41,7 @@ public class BatchConfig {
     @Bean
     public Step step1() {
         return stepBuilderFactory.get("step1")
-                .chunk(1000)
+                .chunk(10000)
 //                .reader(repositoryItemReader())
 //                .reader(hibernateCursorItemReader())
                 .reader(hibernatePagingItemReader())
@@ -49,6 +49,11 @@ public class BatchConfig {
                .writer(listItemWriter())
                 .listener(itemWriteListener)
                 .build();
+    }
+
+    @Bean
+    public ListItemWriter listItemWriter(){
+        return new ListItemWriter();
     }
 
     @Bean("mydemojob")
@@ -96,19 +101,11 @@ public class BatchConfig {
     HibernatePagingItemReader hibernatePagingItemReader(){
         return new HibernatePagingItemReaderBuilder<TestTable>()
                 .fetchSize(0)
-                .pageSize(100)
+                .pageSize(100000)
                 .name("HibernatePagingItemReader")
                 .queryString("FROM TestTable")
                 .sessionFactory(sessionFactory)
                 .build();
     }
-
-
-
-    @Bean
-    public ItemWriter listItemWriter(){
-        return new ListItemWriter();
-    }
-
 
 }
