@@ -15,5 +15,9 @@ spring:
     showSql: true
   batch:
     initializeSchema: always
-#    job:
-#      enabled: false
+    job:
+      enabled: false
+
+logging:
+  level:
+    root: INFO
