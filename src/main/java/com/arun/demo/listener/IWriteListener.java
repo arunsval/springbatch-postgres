@@ -40,7 +40,7 @@ public class IWriteListener implements ItemWriteListener<TestTable> {
         items.forEach(x->  asyncCommands.sadd(String.valueOf(x.getId()),"yyyyy"));
         asyncCommands.flushCommands();
         statefulRedisConnection.close();
-        log.info("Pushed to redis items {}", items.size());
+        log.info("Pushed to redis items via listener {}", items.size());
     }
 
     @Override
