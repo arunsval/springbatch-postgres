@@ -22,13 +22,15 @@ public class BatchConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final MyCustomItemReader myCustomReader;
     private final MyCustomItemWriter myCustomWriter;
+    private final AsyncConfig asyncConfig;
+    private final ReaderConfig readerConfig;
 
 
     @Bean
     public Step step1() {
         return stepBuilderFactory.get("step1")
-                .<TestTable,TestTable>chunk(10000)
-                .reader(myCustomReader.hibernatePagingItemReader())
+                .<TestTable,TestTable>chunk(readerConfig.getPageSize())
+                .reader(myCustomReader.jpaPagingItemReader())
                 .writer(myCustomWriter)
                .taskExecutor(threadPoolTaskExecutor())
                 .build();
@@ -37,7 +39,8 @@ public class BatchConfig {
     @Bean
     public ThreadPoolTaskExecutor threadPoolTaskExecutor(){
        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-       executor.setCorePoolSize(100); //don't create more threads than your allowed postgres db connections
+       executor.setCorePoolSize(asyncConfig.getCoreSize());//don't create more threads than your allowed postgres db connections//
+        executor.setMaxPoolSize(asyncConfig.getMaxSize());
        executor.setThreadNamePrefix("Multithread");
        return executor;
     }

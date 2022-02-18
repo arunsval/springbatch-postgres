@@ -1,15 +1,9 @@
 package com.arun.demo;
 
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 
 @Slf4j
 @SpringBootApplication
@@ -24,7 +18,7 @@ public class SpringBatchPostgresApplication {
 
 
 
-    @EventListener(ApplicationReadyEvent.class)
+   /* @EventListener(ApplicationReadyEvent.class)
     public void checkDB(){
         RedisURI redisURI = RedisURI.builder()
                 .withHost("localhost")
@@ -37,5 +31,5 @@ public class SpringBatchPostgresApplication {
         asyncCommands.set("hhh","yyyyy");
         statefulRedisConnection.close();
         redisClient.shutdown();
-    }
+    }*/
 }

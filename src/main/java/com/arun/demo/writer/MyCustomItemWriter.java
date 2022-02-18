@@ -6,13 +6,16 @@ import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@StepScope
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -26,34 +29,38 @@ public class MyCustomItemWriter implements ItemStreamWriter<TestTable> {
         try {
             statefulRedisConnection = demoRedisClient.connect();
             asyncCommands = statefulRedisConnection.async();
-            log.info("Opened connections successfully");
+            asyncCommands.setAutoFlushCommands(false);
+//            log.info("thread {} Opened connections successfully",Thread.currentThread().getName());
         } catch (Exception exception) {
             statefulRedisConnection = null;
             asyncCommands = null;
-            log.info("Failed to open Redis connections due to", exception);
+            log.error("Failed to open Redis connections due to {}", exception.getLocalizedMessage());
         }
 
     }
 
     @Override
     public void update(ExecutionContext executionContext) throws ItemStreamException {
-
+       log.info("partition {} thread {} updating cache...",executionContext.get("partitionNumber"), Thread.currentThread().getName());
     }
 
     @Override
     public void close() throws ItemStreamException {
         try{
-            log.info("Closing connections...");
+//            log.info("thread {} Closing connections...",Thread.currentThread().getName());
+            asyncCommands.setAutoFlushCommands(true);
         } finally{
             if(asyncCommands != null){
-                asyncCommands.flushCommands();
+                asyncCommands = null;
             }
             if(statefulRedisConnection != null) {
                 statefulRedisConnection.close();
             }
-            log.info("Closed connections successfully");
+//            log.info("thread {} Closed connections successfully",Thread.currentThread().getName());
         }
     }
+
+
 
     @Override
     public void write(List<? extends TestTable> items) throws Exception {
@@ -61,11 +68,11 @@ public class MyCustomItemWriter implements ItemStreamWriter<TestTable> {
         try{
             tempItems = (List<TestTable>) items;
             tempItems.forEach(x->  asyncCommands.sadd(String.valueOf(x.getId()),"yyyyy"));
-            log.info("Pushed to redis items via ItemStreamWriter {}", tempItems.size());
+//            log.info("{} Pushed to redis items via ItemStreamWriter {}", Thread.currentThread().getName(),tempItems.size());
         } finally {
+            asyncCommands.flushCommands();
             items = null;
             tempItems = null;
-            log.info("Cleared items successfully");
         }
     }
 }

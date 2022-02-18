@@ -9,15 +9,29 @@ spring:
     username:
     password:
     hikari:
-      connectionTimeout: 20000
-      maximumPoolSize: 5
+      idleTimeout: 10000
+      minimum-idle: 0
+      connectionTimeout: 60000
+      maximumPoolSize: 20
+      max-lifetime: 60000
+      leak-detection-threshold: 60000
   jpa:
-    showSql: true
+#    showSql: true
   batch:
-    initializeSchema: always
+    initializeSchema: never
     job:
       enabled: false
 
 logging:
   level:
     root: INFO
+
+async:
+  coreSize: 100
+  maxSize: 100
+
+reader:
+  pageSize: 10000
+
+job:
+  gridSize: 10
