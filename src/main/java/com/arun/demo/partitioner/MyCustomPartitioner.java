@@ -23,8 +23,6 @@ public class MyCustomPartitioner implements Partitioner {
     public Map<String, ExecutionContext> partition(int gridSize) {
         Map<String, ExecutionContext> partitionContext = new HashMap<>(gridSize);
         long totalRecords = recordCount();
-        //100 rec, s=0, 100/10=10+1 =11 pageSize = 11
-        //101 rec, s=0, 101/10=10.1+1=11.1 pageSize = 11
         int startOffset = 0;
         int partitionPageSize = (int)(totalRecords/gridSize) + 1;
         for(int i=1;i<=gridSize;i++){

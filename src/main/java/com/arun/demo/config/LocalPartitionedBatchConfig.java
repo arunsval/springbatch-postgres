@@ -37,7 +37,7 @@ public class LocalPartitionedBatchConfig {
     @Bean
     public Step slaveStep() {
         return stepBuilderFactory.get("slaveStep")
-                .<TestTable,TestTable>chunk(30000)
+                .<TestTable,TestTable>chunk(jobConfig.getChunkSize())
                 .reader(myCustomReader.jpaPagingItemReaderWithRange(0,0,0))
                 .writer(myCustomWriter)
                 .build();
@@ -55,20 +55,10 @@ public class LocalPartitionedBatchConfig {
     @Bean("masterThreadPool")
     public ThreadPoolTaskExecutor masterThreadPool(){
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);//don't create more threads than your allowed postgres db connections//
-        executor.setMaxPoolSize(5);
+        executor.setCorePoolSize(asyncConfig.getCoreSize());//don't create more threads than your allowed postgres db connections//
+        executor.setMaxPoolSize(asyncConfig.getMaxSize());
         executor.setThreadNamePrefix("masterThreadPool");
         return executor;
     }
-
-    @Bean("partitionerThreadPool")
-    public ThreadPoolTaskExecutor threadPoolTaskExecutor(){
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(asyncConfig.getCoreSize());//don't create more threads than your allowed postgres db connections//
-        executor.setMaxPoolSize(asyncConfig.getMaxSize());
-        executor.setThreadNamePrefix("partitionerThreadPool");
-        return executor;
-    }
-
 
 }

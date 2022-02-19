@@ -9,4 +9,5 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class JobConfig {
     private int gridSize;
+    private int chunkSize;
 }
