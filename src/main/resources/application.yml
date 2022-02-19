@@ -27,11 +27,17 @@ logging:
     root: INFO
 
 async:
-  coreSize: 100
-  maxSize: 100
+  coreSize: 5
+  maxSize: 8
 
 reader:
   pageSize: 10000
 
 job:
   gridSize: 10
+  chunkSize: 10000
+
+
+activemq:
+  brokerUrl: (tcp://localhost:61616)?persistent=false&useJmx=true
+#  brokerUrl: vm://embedded-broker?broker.persistent=false
